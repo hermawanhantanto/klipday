@@ -7,3 +7,37 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Role {
+  ADMIN
+  BRAND
+  CLIPPER
+}
+
+enum UserStatus {
+  ACTIVE
+  DELETED
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String
+  password  String?
+  role      Role
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  brand     Brand?
+}
+
+model Brand {
+  id          String   @id @default(cuid())
+  companyName String
+  industry    String
+  phoneNumber String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
