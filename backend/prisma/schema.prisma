@@ -20,18 +20,17 @@ enum UserStatus {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  // Personal name; null for brand users, whose identity is their company name
-  name      String?
-  password  String?
-  role      Role
-  status    UserStatus @default(ACTIVE)
+  id         String     @id @default(cuid())
+  email      String     @unique
+  password   String?
+  role       Role
+  status     UserStatus @default(ACTIVE)
   // Email confirmed (flipped by a future email-verification flow)
-  isVerified Boolean @default(false)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  brand     Brand?
+  isVerified Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  brand      Brand?
+  clipper    Clipper?
 }
 
 model Brand {
@@ -43,4 +42,13 @@ model Brand {
   userId      String   @unique
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Clipper {
+  id        String   @id @default(cuid())
+  name      String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

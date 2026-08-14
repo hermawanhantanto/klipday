@@ -9,9 +9,9 @@ const SALT_ROUNDS = 10;
 
 /**
  * Registers a new user: rejects duplicate emails, hashes the password, and
- * creates the user record. Brand users also get a Brand record attached in
- * the same transaction. Returns the user (without sensitive fields) and a
- * signed JWT.
+ * creates the user record. Brand users get a Brand record and clipper users
+ * get a Clipper record attached in the same transaction. Returns the user
+ * (without sensitive fields) and a signed JWT.
  *
  * @param input - The validated, role-discriminated registration payload
  * @returns The created user and a JWT signed for that user
@@ -31,10 +31,7 @@ export async function register(input: RegisterInput) {
       password: hashedPassword,
       role: input.role,
 
-      // Brands are identified by company name; only clippers carry a personal name
-      ...(input.role === 'CLIPPER' && { name: input.name }),
-
-      // Brand users get a Brand record attached in the same transaction
+      // Role-specific records (identity lives in these, not on User)
       ...(input.role === 'BRAND' && {
         brand: {
           create: {
@@ -44,11 +41,15 @@ export async function register(input: RegisterInput) {
           },
         },
       }),
+      ...(input.role === 'CLIPPER' && {
+        clipper: {
+          create: { name: input.name },
+        },
+      }),
     },
-    
+
     select: {
       id: true,
-      name: true,
       email: true,
       role: true,
       createdAt: true,
