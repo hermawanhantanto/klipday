@@ -22,10 +22,13 @@ enum UserStatus {
 model User {
   id        String     @id @default(cuid())
   email     String     @unique
-  name      String
+  // Personal name; null for brand users, whose identity is their company name
+  name      String?
   password  String?
   role      Role
   status    UserStatus @default(ACTIVE)
+  // Email confirmed (flipped by a future email-verification flow)
+  isVerified Boolean @default(false)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   brand     Brand?
