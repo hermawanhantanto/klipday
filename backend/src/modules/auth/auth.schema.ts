@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // Fields every user must provide, regardless of role
-const baseFields = {
+export const baseFields = {
   email: z.email('Invalid email address'),
 
   // 72 is bcrypt's max input length in bytes
@@ -33,3 +33,15 @@ export const registerSchema = z.discriminatedUnion('role', [
 ]);
 
 export type RegisterInput = z.infer<typeof registerSchema>;
+
+// Login only requires a password to exist — the register schema's strength
+// rules are signup-time policy and must not lock out existing accounts.
+export const loginSchema = z.object({
+  email: baseFields.email,
+  password: z
+    .string()
+    .min(1, 'Password is required')
+    .max(72, 'Password must be at most 72 characters'),
+});
+
+export type LoginInput = z.infer<typeof loginSchema>;
