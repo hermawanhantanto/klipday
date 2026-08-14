@@ -14,7 +14,8 @@ enum Role {
   CLIPPER
 }
 
-enum UserStatus {
+// Soft-delete liveness for every model — records are never hard-deleted
+enum Status {
   ACTIVE
   DELETED
 }
@@ -24,7 +25,7 @@ model User {
   email      String     @unique
   password   String?
   role       Role
-  status     UserStatus @default(ACTIVE)
+  status     Status     @default(ACTIVE)
   // Email confirmed (flipped by a future email-verification flow)
   isVerified Boolean    @default(false)
   createdAt  DateTime   @default(now())
@@ -40,6 +41,7 @@ model Brand {
   phoneNumber String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String   @unique
+  status      Status   @default(ACTIVE)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -49,6 +51,7 @@ model Clipper {
   name      String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String   @unique
+  status    Status   @default(ACTIVE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
